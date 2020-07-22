@@ -28,9 +28,9 @@ provider:
       Resource: "*"
 
 functions:
-  logInfo:
-    handler: handler.logInfo
+  sendEmail:
+    handler: handler.sendEmail
     events:
       - http:
           method: post
-          path: logInfo
+          path: sendEmail

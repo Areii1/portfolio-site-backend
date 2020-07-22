@@ -1,5 +1,8 @@
+import { sourceEmail, deliveryEmail } from "./config";
+import { ValidatedData } from "./Types";
+
 export const validateQueryData = (data: any) => {
-  console.log(data, 'data');
+  console.log(data, "data");
   const keys = Object.keys(data);
   if (keys.length > 4) {
     return "provide no more than four arguments";
@@ -29,4 +32,19 @@ export const validateQueryData = (data: any) => {
 const validateEmail = (email: string) => {
   var re = /\S+@\S+\.\S+/;
   return re.test(email);
+};
+
+export const buildSendEmailParams = (validatedData: ValidatedData) => {
+  return {
+    Destination: {
+      ToAddresses: [deliveryEmail],
+    },
+    Message: {
+      Subject: { Data: validatedData.subject },
+      Body: {
+        Text: { Data: validatedData.message },
+      },
+    },
+    Source: sourceEmail,
+  };
 };
