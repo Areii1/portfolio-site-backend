@@ -1,5 +1,14 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
+import * as AWS from "aws-sdk";
 import "source-map-support/register";
+
+console.log(AWS, "aws");
+
+const ses = new AWS.SES({
+  region: "eu-central-1", // Set the region in which SES is configured
+});
+
+console.log(ses, "ses");
 
 const validateQueryData = (data: any) => {
   const keys = Object.keys(data);
@@ -42,10 +51,59 @@ export const logInfo: APIGatewayProxyHandler = async (event, _context) => {
   if (!validationResponse) {
     const validatedData: ValidatedData = data;
     console.log(validatedData, "validatedData");
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ response: "received query in correct form" }),
+    var params = {
+      Destination: {
+        ToAddresses: ["ari.jaaskelainen1@gmail.com"],
+      },
+      Message: {
+        Body: {
+          Text: { Data: "Test" },
+        },
+
+        Subject: { Data: "Test Email" },
+      },
+      Source: "gahajic436@invql.com",
     };
+
+    if (ses.sendEmail) {
+      console.log("ses.send email does exist 2");
+      let response;
+      try {
+        ses.sendEmail(params, (err, data) => {
+          console.log('hello inside ses.sendEmail');
+          if (err) {
+            console.log(err, "err");
+            response = {
+              statusCode: 500,
+              body: JSON.stringify({
+                error: `could not send email due to error: '${err.message}'`,
+              }),
+            };
+          } else {
+            console.log(data, "data");
+            response = {
+              statusCode: 200,
+              body: JSON.stringify({ response: "email was sent successfully" }),
+            };
+          }
+        });
+      } catch (awsSesServiceError) {
+        console.log("could not perform ses.sendEmail()");
+        response = {
+          statusCode: 500,
+          body: JSON.stringify({
+            error: `could not send email due to error: '${awsSesServiceError.message}'`,
+          }),
+        };
+      }
+      console.log(response, 'response');
+      return response;
+    } else {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "ses service does not exist" }),
+      };
+    }
   } else {
     return {
       statusCode: 500,
