@@ -62,33 +62,23 @@ export const logInfo: APIGatewayProxyHandler = async (event, _context) => {
 
         Subject: { Data: "Test Email" },
       },
-      Source: "gahajic436@invql.com",
+      Source: "contact@arijaaskelainen.fi",
     };
 
     if (ses.sendEmail) {
-      console.log("ses.send email does exist 2");
+      console.log("ses.send email does exist 3");
       let response;
       try {
-        ses.sendEmail(params, (err, data) => {
-          console.log('hello inside ses.sendEmail');
-          if (err) {
-            console.log(err, "err");
-            response = {
-              statusCode: 500,
-              body: JSON.stringify({
-                error: `could not send email due to error: '${err.message}'`,
-              }),
-            };
-          } else {
-            console.log(data, "data");
-            response = {
-              statusCode: 200,
-              body: JSON.stringify({ response: "email was sent successfully" }),
-            };
-          }
-        });
+        const sendEmailResponse = await ses.sendEmail(params).promise();
+        console.log(sendEmailResponse, "sendEmailResponse");
+        response = {
+          statusCode: 200,
+          body: JSON.stringify({
+            response: `email was sent successfully, id: ${sendEmailResponse.MessageId}`,
+          }),
+        };
       } catch (awsSesServiceError) {
-        console.log("could not perform ses.sendEmail()");
+        console.log("could not perform ses.sendEmail()", awsSesServiceError);
         response = {
           statusCode: 500,
           body: JSON.stringify({
@@ -96,7 +86,7 @@ export const logInfo: APIGatewayProxyHandler = async (event, _context) => {
           }),
         };
       }
-      console.log(response, 'response');
+      console.log(response, "response");
       return response;
     } else {
       return {

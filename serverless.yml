@@ -22,11 +22,10 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
   iamRoleStatements:
-  - Effect: Allow
-    Action:
-      - ses:SendEmail,
-      - ses:SendRawEmail
-    Resource: '*'
+    - Effect: "Allow"
+      Action:
+        - "ses:*"
+      Resource: "*"
 
 functions:
   logInfo:
