@@ -5,36 +5,42 @@ import { sendEmailService } from "./services";
 import { ValidatedData } from "./Types";
 import { buildSendEmailParams } from "./util";
 
+const defaultHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Credentials": true,
+};
+
 export const sendEmail: APIGatewayProxyHandler = async (event, _context) => {
   const data = JSON.parse(event.body);
   const validationResponse = validateQueryData(data);
   if (!validationResponse) {
     const validatedData: ValidatedData = data;
     const sendEmailParams = buildSendEmailParams(validatedData);
-    let response;
     try {
       const sendEmailResponse = await sendEmailService
         .sendEmail(sendEmailParams)
         .promise();
-      response = {
+      return {
         statusCode: 200,
         body: JSON.stringify({
           response: `email was sent successfully, id: ${sendEmailResponse.MessageId}`,
         }),
+        headers: defaultHeaders,
       };
     } catch (awsSesServiceError) {
-      response = {
+      return {
         statusCode: 500,
         body: JSON.stringify({
           error: `could not send email due to error: '${awsSesServiceError.message}'`,
         }),
+        headers: defaultHeaders,
       };
     }
-    return response;
   } else {
     return {
       statusCode: 500,
       body: JSON.stringify({ error: validationResponse }),
+      headers: defaultHeaders,
     };
   }
 };
