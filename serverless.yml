@@ -33,4 +33,5 @@ functions:
     events:
       - http:
           method: post
+          cors: true
           path: sendEmail
