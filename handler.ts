@@ -1,9 +1,8 @@
 import { APIGatewayProxyHandler } from "aws-lambda";
 import "source-map-support/register";
 import { validateQueryData } from "./util";
-import { sendEmailService } from "./services";
+import { sendEmail as sendEmailFromService } from "./services";
 import { ValidatedData } from "./Types";
-import { buildSendEmailParams } from "./util";
 
 const defaultHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,11 +14,13 @@ export const sendEmail: APIGatewayProxyHandler = async (event, _context) => {
   const validationResponse = validateQueryData(data);
   if (!validationResponse) {
     const validatedData: ValidatedData = data;
-    const sendEmailParams = buildSendEmailParams(validatedData);
     try {
-      const sendEmailResponse = await sendEmailService
-        .sendEmail(sendEmailParams)
-        .promise();
+      const sendEmailResponse = await sendEmailFromService(
+        validatedData.email,
+        validatedData.name,
+        validatedData.subject,
+        validatedData.message
+      );
       return {
         statusCode: 200,
         body: JSON.stringify({
@@ -38,7 +39,7 @@ export const sendEmail: APIGatewayProxyHandler = async (event, _context) => {
     }
   } else {
     return {
-      statusCode: 500,
+      statusCode: 400,
       body: JSON.stringify({ error: validationResponse }),
       headers: defaultHeaders,
     };
