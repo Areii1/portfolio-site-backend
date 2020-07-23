@@ -5,12 +5,7 @@ const sendEmailService = new AWS.SES({
   region: "eu-central-1",
 });
 
-export const sendEmail = (
-  email: string,
-  name: string,
-  subject: string,
-  message: string
-) => {
+export const sendEmail = (subject: string, message: string, email: string) => {
   const sendEmailParams = {
     Destination: {
       ToAddresses: [deliveryEmail],
@@ -22,6 +17,7 @@ export const sendEmail = (
       },
     },
     Source: sourceEmail,
+    ReplyToAddresses: [email],
   };
   return sendEmailService.sendEmail(sendEmailParams).promise();
 };

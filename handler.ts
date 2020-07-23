@@ -15,11 +15,11 @@ export const sendEmail: APIGatewayProxyHandler = async (event, _context) => {
   if (!validationResponse) {
     const validatedData: ValidatedData = data;
     try {
+      const emailMessageField = `'${validatedData.name}' sent you the following message: \n ${validatedData.message}`;
       const sendEmailResponse = await sendEmailFromService(
-        validatedData.email,
-        validatedData.name,
         validatedData.subject,
-        validatedData.message
+        emailMessageField,
+        validatedData.email
       );
       return {
         statusCode: 200,
